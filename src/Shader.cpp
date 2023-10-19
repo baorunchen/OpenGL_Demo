@@ -7,7 +7,7 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	std::ifstream vShaderFile;
 	std::ifstream fShaderFile;
 
-	// gurantee ifstream object can throw exception 
+	// guarantee ifstream object can throw exception 
 	vShaderFile.exceptions(std::ifstream::badbit);
 	fShaderFile.exceptions(std::ifstream::badbit);
 
@@ -80,8 +80,6 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
-
-	
 }
 
 
