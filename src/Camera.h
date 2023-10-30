@@ -13,7 +13,7 @@ enum CameraMovement {
 // default camera values
 const float YAW = -90.0f;	// Euler Angle
 const float PITCH = 0.0f;	// Euler Angle
-const float SPEED = 2.5f;
+const float SPEED = 4.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -25,7 +25,7 @@ public:
 	Eigen::Vector3f Right;
 	Eigen::Vector3f WorldUp;
 	
-	// euler angle
+	// Euler angle
 	float Yaw;
 	float Pitch;
 
@@ -34,7 +34,7 @@ public:
 	float MouseSensitivity;
 	float Zoom;
 
-	Camera(Eigen::Vector3f position = Eigen::Vector3f(0, 0, 0), Eigen::Vector3f up = Eigen::Vector3f(0, 0, 0), float yaw = YAW, float pitch = PITCH) : Front(Eigen::Vector3f(0, 0, -1.0)), MovementSpeed(SPEED),
+	Camera(Eigen::Vector3f position = Eigen::Vector3f(0, 0, 0), Eigen::Vector3f up = Eigen::Vector3f(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(Eigen::Vector3f(0, 0, -1.0f)), MovementSpeed(SPEED),
 		MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
 		Position = position;
 		WorldUp = up;
@@ -51,13 +51,21 @@ public:
 			0, 0, 1, -Position.z(),
 			0, 0, 0, 1;
 
-		Eigen::Vector3f translate;
+		Eigen::Matrix4f translate;
 		translate << Right.x(), Up.x(), Position.x() + Front.x(), 0,
 			Right.y(), Up.y(), Position.y() + Front.y(), 0,
 			Right.z(), Up.z(), Position.z() + Front.z(), 0,
 			0, 0, 0, 1;
 		
+		//translate << Right.x(), Right.y(), Right.z(), 0,
+		//	Up.x(), Up.y(), Up.z(), 0,
+		//	Position.x() + Front.x(), Position.y() + Front.y(), Position.z() + Front.z(), 0,
+		//	0, 0, 0, 1;
+					
+
+		
 		view = translate * view;
+		/*return Eigen::Matrix4f::Identity();*/
 		return view;
 	}
 

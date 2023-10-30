@@ -16,24 +16,24 @@
 
 
 // Function prototypes
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
+Eigen::Matrix4f getProjectionMatrix();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 // camera
-Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 0.0f }));
+Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 5.0f }));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-// The MAIN function, from here we start the application and run the game loop
+
 int main()
 {
     // Init GLFW
@@ -49,7 +49,6 @@ int main()
     glfwMakeContextCurrent(window);
     
     // Set the required callback functions
-    glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
@@ -62,7 +61,7 @@ int main()
     // Initialize GLEW to setup the OpenGL Function pointers
     glewInit();
 
-
+    glEnable(GL_DEPTH_TEST);
     // Define the shader
     Shader shader("./shader/vertex.shader", "./shader/fragment.shader");
     shader.Use();
@@ -113,7 +112,18 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     
-
+    Eigen::Vector3f cubePositions[] = {
+        Eigen::Vector3f(0.0f,  0.0f,  0.0f),
+        Eigen::Vector3f(2.0f,  5.0f, -15.0f),
+        Eigen::Vector3f(-1.5f, -2.2f, -2.5f),
+        Eigen::Vector3f(-3.8f, -2.0f, -12.3f),
+        Eigen::Vector3f(2.4f, -0.4f, -3.5f),
+        Eigen::Vector3f(-1.7f,  3.0f, -7.5f),
+        Eigen::Vector3f(1.3f, -2.0f, -2.5f),
+        Eigen::Vector3f(1.5f,  2.0f, -2.5f),
+        Eigen::Vector3f(1.5f,  0.2f, -1.5f),
+        Eigen::Vector3f(-1.3f,  1.0f, -1.5f)
+    };
 
     GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
@@ -154,23 +164,51 @@ int main()
     }
     stbi_image_free(data);
 
+    std::cout << getProjectionMatrix() << std::endl;
 
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
+        float curFrame = static_cast<float>(glfwGetTime());
+        deltaTime = curFrame - lastFrame;
+        lastFrame = curFrame;
         // Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
         glfwPollEvents();
+        processInput(window);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glBindTexture(GL_TEXTURE_2D, texture);
 
         shader.Use();
-        Eigen::Matrix4f test = Eigen::Matrix4f::Identity();
-        shader.setMat4("view", test);
-        shader.setMat4("model", test);
-        shader.setMat4("projection", test);
+        Eigen::Matrix4f projection = getProjectionMatrix();
+
+        Eigen::Matrix4f view = camera.GetViewMatrix();
+        Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
+
+
+
+        Eigen::Matrix4f test;
+        test << 1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1;
+
+        model << 1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, -7,
+            0, 0, 0, 1;
+
+
+
+        shader.setMat4("view", view);
+        shader.setMat4("model", model);
+        shader.setMat4("projection", projection);
+
+        //shader.setMat4("view", view);
+        //shader.setMat4("model", model);
+        //shader.setMat4("projection", projection);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -188,12 +226,6 @@ int main()
     return 0;
 }
 
-// Is called whenever a key is pressed/released via GLFW
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
@@ -204,19 +236,19 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos){
-    float xpos = static_cast<float>(xpos);
-    float ypos = static_cast<float>(ypos);
+    float newxpos = static_cast<float>(xpos);
+    float newypos = static_cast<float>(ypos);
     if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
+        lastX = newxpos;
+        lastY = newypos;
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos;
+    float xoffset = newxpos - lastX;
+    float yoffset = lastY - newypos;
 
-    lastX = xpos;
-    lastY = ypos;
+    lastX = newxpos;
+    lastY = newypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
@@ -232,7 +264,31 @@ void processInput(GLFWwindow* window){
         camera.ProcessKeyBoard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.ProcessKeyBoard(RIGHT, deltaTime);
+
     
+}
+
+Eigen::Matrix4f getProjectionMatrix(){
+    float n = -0.1f, f = -100.0f;
+    float height = -n * tan(camera.Zoom / 2) * 2, width = WIDTH / HEIGHT * 1.0f * height;
+    Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
+    Eigen::Matrix4f scale;
+    scale << 2 / width, 0, 0, 0,
+        0, 2 / height, 0, 0,
+        0, 0, 2 / (n - f), 0,
+        0, 0, 0, 1;
+    Eigen::Matrix4f translate;
+    translate << 1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, -(n + f) / 2,
+        0, 0, 0, 1;
+    Eigen::Matrix4f ortho;
+    ortho << n, 0, 0, 0,
+        0, n, 0, 0,
+        0, 0, n + f, -n * f,
+        0, 0, 1, 0;
+    projection = scale * translate * ortho;
+    return projection;
 }
 
 
