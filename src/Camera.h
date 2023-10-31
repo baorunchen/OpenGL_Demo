@@ -13,7 +13,7 @@ enum CameraMovement {
 // default camera values
 const float YAW = -90.0f;	// Euler Angle
 const float PITCH = 0.0f;	// Euler Angle
-const float SPEED = 4.0f;
+const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -65,19 +65,19 @@ public:
 
 		
 		view = translate * view;
-		/*return Eigen::Matrix4f::Identity();*/
+		//return Eigen::Matrix4f::Identity();
 		return view;
 	}
 
 	void ProcessKeyBoard(CameraMovement direction, float deltaTime) {
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
-			Position += Front * velocity;
-		if (direction == BACKWARD)
 			Position -= Front * velocity;
-		if (direction == LEFT)
+		else if (direction == BACKWARD)
+			Position += Front * velocity;
+		else if (direction == LEFT)
 			Position -= Right * velocity;
-		if (direction == RIGHT)
+		else
 			Position += Right * velocity;
 	}
 
@@ -109,7 +109,7 @@ public:
 private:
 	void updateCameraVectors() {
 		Front.x() = cos(radians(Pitch)) * cos(radians(Yaw));
-		Front.y() = sin(radians(PITCH));
+		Front.y() = sin(radians(Pitch));
 		Front.z() = cos(radians(Pitch)) * sin(radians(Yaw));
 
 		Front.normalize();

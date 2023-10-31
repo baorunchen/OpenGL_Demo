@@ -23,10 +23,10 @@ void processInput(GLFWwindow* window);
 Eigen::Matrix4f getProjectionMatrix();
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 800, HEIGHT = 800;
 
 // camera
-Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 5.0f }));
+Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 1.0f }));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -181,13 +181,17 @@ int main()
 
         glBindTexture(GL_TEXTURE_2D, texture);
 
+        glBindVertexArray(VAO);
+
         shader.Use();
-        Eigen::Matrix4f projection = getProjectionMatrix();
+        Eigen::Matrix4f projection = getProjectionMatrix() ;
 
         Eigen::Matrix4f view = camera.GetViewMatrix();
-        Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
+        //Eigen::Matrix4f model;
 
 
+        //std::cout << "projection" << "\n" << projection << std::endl;
+        //std::cout << "view" << "\n" << view << std::endl;
 
         Eigen::Matrix4f test;
         test << 1, 0, 0, 0,
@@ -195,23 +199,26 @@ int main()
             0, 0, 1, 0,
             0, 0, 0, 1;
 
-        model << 1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, -7,
-            0, 0, 0, 1;
-
-
 
         shader.setMat4("view", view);
-        shader.setMat4("model", model);
+        shader.setMat4("model", test);
         shader.setMat4("projection", projection);
 
-        //shader.setMat4("view", view);
-        //shader.setMat4("model", model);
-        //shader.setMat4("projection", projection);
+        //for (unsigned int i = 0; i < 10; ++i) {
+        //    Eigen::Matrix4f model;
+        //    model << 1, 0, 0, cubePositions[i].x(),
+        //        0, 1, 0, cubePositions[i].y(),
+        //        0, 0, 1, cubePositions[i].z(),
+        //        0, 0, 0, 1;
+        //    shader.setMat4("view", view);
+        //    shader.setMat4("model", model);
+        //    shader.setMat4("projection", projection);
+        //    glDrawArrays(GL_TRIANGLES, 0, 36);
+        //}
 
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        
+        
 
         // Swap the screen buffers
         glfwSwapBuffers(window);
@@ -269,8 +276,8 @@ void processInput(GLFWwindow* window){
 }
 
 Eigen::Matrix4f getProjectionMatrix(){
-    float n = -0.1f, f = -100.0f;
-    float height = -n * tan(camera.Zoom / 2) * 2, width = WIDTH / HEIGHT * 1.0f * height;
+    float n = 0.1f, f = 100.0f;
+    float height = n * tan(camera.Zoom / 2) * 2, width = WIDTH * 1.0f / HEIGHT * height;
     Eigen::Matrix4f projection = Eigen::Matrix4f::Identity();
     Eigen::Matrix4f scale;
     scale << 2 / width, 0, 0, 0,
