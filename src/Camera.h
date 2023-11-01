@@ -13,8 +13,8 @@ enum CameraMovement {
 // default camera values
 const float YAW = -90.0f;	// Euler Angle
 const float PITCH = 0.0f;	// Euler Angle
-const float SPEED = 2.5f;
-const float SENSITIVITY = 0.1f;
+const float SPEED = 5.0f;
+const float SENSITIVITY = 0.5f;
 const float ZOOM = 45.0f;
 
 class Camera {
@@ -61,7 +61,7 @@ public:
 		//	Up.x(), Up.y(), Up.z(), 0,
 		//	Position.x() + Front.x(), Position.y() + Front.y(), Position.z() + Front.z(), 0,
 		//	0, 0, 0, 1;
-					
+		//			
 
 		
 		view = translate * view;
@@ -72,9 +72,9 @@ public:
 	void ProcessKeyBoard(CameraMovement direction, float deltaTime) {
 		float velocity = MovementSpeed * deltaTime;
 		if (direction == FORWARD)
-			Position -= Front * velocity;
-		else if (direction == BACKWARD)
 			Position += Front * velocity;
+		else if (direction == BACKWARD)
+			Position -= Front * velocity;
 		else if (direction == LEFT)
 			Position -= Right * velocity;
 		else

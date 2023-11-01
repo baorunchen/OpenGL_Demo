@@ -21,12 +21,13 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void processInput(GLFWwindow* window);
 Eigen::Matrix4f getProjectionMatrix();
+Eigen::Matrix4f getProjectionMatrixTest();
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 800;
 
 // camera
-Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 1.0f }));
+Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 3.0f }));
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -62,6 +63,7 @@ int main()
     glewInit();
 
     glEnable(GL_DEPTH_TEST);
+
     // Define the shader
     Shader shader("./shader/vertex.shader", "./shader/fragment.shader");
     shader.Use();
@@ -184,7 +186,7 @@ int main()
         glBindVertexArray(VAO);
 
         shader.Use();
-        Eigen::Matrix4f projection = getProjectionMatrix() ;
+        Eigen::Matrix4f projection = getProjectionMatrixTest() ;
 
         Eigen::Matrix4f view = camera.GetViewMatrix();
         //Eigen::Matrix4f model;
@@ -203,6 +205,7 @@ int main()
         shader.setMat4("view", view);
         shader.setMat4("model", test);
         shader.setMat4("projection", projection);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         //for (unsigned int i = 0; i < 10; ++i) {
         //    Eigen::Matrix4f model;
@@ -282,7 +285,7 @@ Eigen::Matrix4f getProjectionMatrix(){
     Eigen::Matrix4f scale;
     scale << 2 / width, 0, 0, 0,
         0, 2 / height, 0, 0,
-        0, 0, 2 / (n - f), 0,
+        0, 0, 2 / (f-n), 0,
         0, 0, 0, 1;
     Eigen::Matrix4f translate;
     translate << 1, 0, 0, 0,
@@ -293,8 +296,24 @@ Eigen::Matrix4f getProjectionMatrix(){
     ortho << n, 0, 0, 0,
         0, n, 0, 0,
         0, 0, n + f, -n * f,
-        0, 0, 1, 0;
+        0, 0, -1, 0;
     projection = scale * translate * ortho;
+    return projection;
+}
+
+Eigen::Matrix4f getProjectionMatrixTest() {
+    float n = 0.1f, f = 100.0f;
+    float height = n * tan(camera.Zoom / 2) * 2, width = WIDTH * 1.0f / HEIGHT * height;
+    Eigen::Matrix4f projection;
+    projection << 2 * n / width, 0, 0, 0,
+        0, 2 * n / height, 0, 0,
+        0, 0, (f + n) / (n - f), 2 * f * n / (n - f),
+        0, 0, -1, 0;
+    //projection << 2 / width, 0, 0, 0,
+    //    0, 1 / height, 0, 0,
+    //    0, 0, -2 * (f - n), (f + n) / (n - f),
+    //    0, 0, 0, 1;
+    
     return projection;
 }
 
