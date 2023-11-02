@@ -24,7 +24,7 @@ Eigen::Matrix4f getProjectionMatrix();
 Eigen::Matrix4f getProjectionMatrixTest();
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 800;
+const GLuint WIDTH = 1200, HEIGHT = 1200;
 
 // camera
 Camera camera(Eigen::Vector3f({ 0.0f, 0.0f, 3.0f }));
@@ -139,8 +139,8 @@ int main()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     // texture
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     
     // load and create a texture;
@@ -202,22 +202,22 @@ int main()
             0, 0, 0, 1;
 
 
-        shader.setMat4("view", view);
-        shader.setMat4("model", test);
-        shader.setMat4("projection", projection);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //shader.setMat4("view", view);
+        //shader.setMat4("model", test);
+        //shader.setMat4("projection", projection);
+        //glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //for (unsigned int i = 0; i < 10; ++i) {
-        //    Eigen::Matrix4f model;
-        //    model << 1, 0, 0, cubePositions[i].x(),
-        //        0, 1, 0, cubePositions[i].y(),
-        //        0, 0, 1, cubePositions[i].z(),
-        //        0, 0, 0, 1;
-        //    shader.setMat4("view", view);
-        //    shader.setMat4("model", model);
-        //    shader.setMat4("projection", projection);
-        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-        //}
+        for (unsigned int i = 0; i < 10; ++i) {
+            Eigen::Matrix4f model;
+            model << 1, 0, 0, cubePositions[i].x(),
+                0, 1, 0, cubePositions[i].y(),
+                0, 0, 1, cubePositions[i].z(),
+                0, 0, 0, 1;
+            shader.setMat4("view", view);
+            shader.setMat4("model", model);
+            shader.setMat4("projection", projection);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
 
         

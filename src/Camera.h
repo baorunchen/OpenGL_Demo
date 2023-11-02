@@ -14,7 +14,7 @@ enum CameraMovement {
 const float YAW = -90.0f;	// Euler Angle
 const float PITCH = 0.0f;	// Euler Angle
 const float SPEED = 5.0f;
-const float SENSITIVITY = 0.5f;
+const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
 class Camera {
@@ -52,20 +52,12 @@ public:
 			0, 0, 0, 1;
 
 		Eigen::Matrix4f translate;
-		translate << Right.x(), Up.x(), Position.x() + Front.x(), 0,
-			Right.y(), Up.y(), Position.y() + Front.y(), 0,
-			Right.z(), Up.z(), Position.z() + Front.z(), 0,
+		translate << Right.x(), Up.x(), Front.x(), 0,
+			Right.y(), Up.y(), Front.y(), 0,
+			Right.z(), Up.z(), Front.z(), 0,
 			0, 0, 0, 1;
-		
-		//translate << Right.x(), Right.y(), Right.z(), 0,
-		//	Up.x(), Up.y(), Up.z(), 0,
-		//	Position.x() + Front.x(), Position.y() + Front.y(), Position.z() + Front.z(), 0,
-		//	0, 0, 0, 1;
-		//			
-
-		
+				
 		view = translate * view;
-		//return Eigen::Matrix4f::Identity();
 		return view;
 	}
 
